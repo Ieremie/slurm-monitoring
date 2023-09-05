@@ -1,7 +1,7 @@
 # slurm-monitoring
 Monitoring GPU, RAM and CPU usage for slurm partitions and users.
 
-This is an app written in Python using flask. It gathers information using the standard slurm functions (squeue, control etc.)
+This is an app written in Python using flask. It gathers information using the standard slurm functions (squeue, scontrol etc.)
 The implementation assumes some fixed parameters such as maximum resource available to reduce  the number of requests sent to the slurm server.
 
 You can quickly adapt this implementation to your own server. You can add as many partitions as you want and these will be displayed as a 2-column page.
