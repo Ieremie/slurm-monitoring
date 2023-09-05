@@ -355,16 +355,6 @@ if __name__ == "__main__":
 
     while True:
         node_info = get_node_info("pink51", conn_manager)
-        # print(get_user_allocated_RAM_on_partition("gpu", conn_manager, "oll1u20"))
-
-        # print(get_partition_CPU_info('ecsstaff', conn_manager, "total"))
-        # pprint.pprint(get_job_info(4689823, conn_manager))
-        # jobinfo =get_job_info(4689823, conn_manager)
-        # print(get_job_allocated_GPU(jobinfo))
-
-        # pprint.pprint(aggregate_partition_info(conn_manager, locked_usage=True))
-        # print(get_partition_allocated_GPU("ecsall", conn_manager))
-
         a = aggregate_user_info(conn_manager)
         pprint.pprint(a)
         time.sleep(1)  # Wait for a minute before checking again
