@@ -6,7 +6,7 @@ The implementation assumes some fixed parameters such as maximum resource availa
 
 You can quickly adapt this implementation to your own server. You can add as many partitions as you want and these will be displayed as a 2-column page.
 
-In the case that resources can be locked by a user and not actually being used, this can be monitored too. This is when a job requests resources from a node containing GPU nodes, but does not actually use them.
+In the case that resources can be locked by a user and not actually being used, this can be monitored too. This is when a job requests resources from a node containing GPUs, but does not actually use them.
 
 ![alt text](https://github.com/Ieremie/slurm-monitoring/blob/main/front-end-example-1.png)
 ![alt text](https://github.com/Ieremie/slurm-monitoring/blob/main/front-end-example-0.png)
