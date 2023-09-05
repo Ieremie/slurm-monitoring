@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta http-equiv="refresh" content="60">
+</head>
+
+<body>
+    <h1>Resource Monitor</h1>
+    <header>
+        <button id="resource-button" class="tab-button">Partitions</button>
+        <button id="user-button" class="tab-button">Users</button>
+        <span>Last update: {{ last_update_time }}</span>
+    </header>
+
+    <div id="resource-monitor" class="monitor-container">
+        <div class="partitions-container">
+            {% for partition, data in partitions.items() %}
+                <div class="partition">
+                    <h2>Partition: {{ partition }}</h2>
+                    <span class="resources">Available resources</span>
+                    <div class="storage-bars-container">
+                            <span class="resource-type">GPU ({{ data['gpu_name'] }})</span>
+                            <div class="storage-bar">
+                                <span class="storage-text">{{ data['gpu_free'] }}/{{ data['gpu_total'] }} cards</span>
+                                <div class="storage-fill" style="width: {{ data['gpu_free_percentage'] }}%;"></div>
+                            </div>
+                            <span class="resource-type">CPU</span>
+                            <div class="storage-bar">
+                                <span class="storage-text">{{ data['cpu_free'] }}/{{ data['cpu_total'] }} cores</span>
+                                <div class="storage-fill" style="width: {{ data['cpu_free_percentage'] }}%;"></div>
+
+                            </div>
+                            <span class="resource-type">RAM</span>
+                            <div class="storage-bar">
+                                <span class="storage-text">{{ data['ram_free'] }}/{{ data['ram_total'] }}GB</span>
+                                <div class="storage-fill" style="width: {{ data['ram_free_percentage'] }}%;"></div>
+                            </div>
+                    </div>
+                    <h3>Node usage:</h3>
+                    <ul>
+                        {% for node, node_data in data['nodes'].items() %}
+
+                        <span class="node-name">{{ node }}, STATE={{ node_data['state'] }}</span>
+                        <li>
+                            <div class="storage-bars-container">
+                                <span class="resource-type">GPU</span>
+                                <div class="storage-bar-node">
+                                    <span class="storage-text">{{ node_data['gpu_allocated'] }}/{{ node_data['gpu_total'] }} cards</span>
+                                    <div class="storage-fill-node" style="width: {{ node_data['gpu_allocated_percentage'] }}%;"></div>
+                                </div>
+                                <span class="resource-type">CPU</span>
+                                <div class="storage-bar-node">
+                                    <span class="storage-text">{{ node_data['cpu_allocated']  }}/{{node_data['cpu_total']}} cores</span>
+                                    <div class="storage-fill-node" style="width: {{node_data['cpu_allocated_percentage'] }}%;"></div>
+
+                                </div>
+                                <span class="resource-type">RAM</span>
+                                <div class="storage-bar-node">
+                                    <span class="storage-text">{{ node_data['ram_allocated']  }}/{{ node_data['ram_total']}}GB</span>
+                                    <div class="storage-fill-node" style="width: {{ node_data['ram_allocated_percentage']  }}%;"></div>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endfor %}
+        </div>
+    </div>
+
+    </div>
+
+    <div id="user-monitor" class="monitor-container" style="display: none;">
+        <div class="partitions-container">
+            {% for d, message in [(users_info, "Top 5 GPU usage"),
+                              (users_with_partial_gpu_usage, "Locking GPUs and partially using them"),
+                              (users_with_no_gpu_usage, "Locking GPUs without using them")]%}
+            <div class="partition">
+                <h2>{{message}}</h2>
+                {% for user, user_data in d.items()%}
+                    <span class="node-name">Username: {{ user }}</span>
+                    <li class="li-users">
+                        <div class="storage-bars-container">
+                            <span class="resource-type">GPU</span>
+                            <span class="storage-text">{{ user_data['gpu_locked']}} cards</span>
+
+                            <span class="resource-type">CPU</span>
+                            <span class="storage-text">{{ user_data['cpu_allocated']}} cores</span>
+
+                            <span class="resource-type">RAM</span>
+                            <span class="storage-text">{{ user_data['ram_allocated']}}GB</span>
+
+                        </div>
+                    </li>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        // JavaScript code for switching between monitors
+        document.getElementById("resource-button").addEventListener("click", function () {
+            document.getElementById("resource-monitor").style.display = "block";
+            document.getElementById("user-monitor").style.display = "none";
+        });
+
+        document.getElementById("user-button").addEventListener("click", function () {
+            document.getElementById("resource-monitor").style.display = "none";
+            document.getElementById("user-monitor").style.display = "block";
+        });
+    </script>
+
+
+</body>
+</html>
