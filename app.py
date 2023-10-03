@@ -16,8 +16,12 @@ def update_data():
     users_with_no_gpu_usage = filter_users_with_no_GPU_usage(user_info)
     users_with_partial_gpu_usage = filter_users_with_partial_GPU_usage(user_info)
 
-    # Sort by gpu usage and keep the first 10
-    user_info = dict(sorted(user_info.items(), key=lambda x: x[1]['gpu_locked'], reverse=True)[:5])
+    # Sort by gpu usage and keep the first 5
+    user_info = dict(sorted(user_info.items(), key=lambda x: x[1]['gpu_allocated'], reverse=True)[:5])
+    users_with_partial_gpu_usage = dict(sorted(users_with_partial_gpu_usage.items(), key=lambda x: x[1]['gpu_locked'],
+                                               reverse=True)[:5])
+    users_with_no_gpu_usage = dict(sorted(users_with_no_gpu_usage.items(), key=lambda x: x[1]['gpu_locked'],
+                                          reverse=True)[:5])
 
     # Store the updated data in the cache
     cache['data'] = {

@@ -83,7 +83,11 @@
                     <li class="li-users">
                         <div class="storage-bars-container">
                             <span class="resource-type">GPU</span>
-                            <span class="storage-text">{{ user_data['gpu_locked']}} cards</span>
+                            <span class="storage-text">{{user_data['gpu_allocated']}}
+                                {% if d == users_with_partial_gpu_usage or d == users_with_no_gpu_usage%}
+                                    /{{ user_data['gpu_locked'] }}
+                                {% endif %} cards
+                            </span>
 
                             <span class="resource-type">CPU</span>
                             <span class="storage-text">{{ user_data['cpu_allocated']}} cores</span>
@@ -104,11 +108,23 @@
         document.getElementById("resource-button").addEventListener("click", function () {
             document.getElementById("resource-monitor").style.display = "block";
             document.getElementById("user-monitor").style.display = "none";
+            sessionStorage.setItem("activeTab", "resource"); // Store active tab
         });
 
         document.getElementById("user-button").addEventListener("click", function () {
             document.getElementById("resource-monitor").style.display = "none";
             document.getElementById("user-monitor").style.display = "block";
+            sessionStorage.setItem("activeTab", "user"); // Store active tab
+        });
+
+        // Check and set the active tab on page load
+        window.addEventListener("load", function () {
+            const activeTab = sessionStorage.getItem("activeTab");
+            if (activeTab === "user") {
+                document.getElementById("user-button").click(); // Trigger click event
+            } else {
+                document.getElementById("resource-button").click(); // Default to "Partitions"
+            }
         });
     </script>
 

@@ -9,8 +9,8 @@ import re
 from typing import List
 
 IRIDIS_ADDRESS = "iridis5_a.soton.ac.uk"
-IRIDIS_USERNAME = "ii1g17"
-PRIVATE_KEY_PATH = os.path.expanduser("/Users/ioan/.ssh/iridis5_ssh_key")
+USERID = "ii1g17"
+IRIDIS_SSH_KEY = os.path.expanduser("/Users/ioan/.ssh/iridis5")
 
 PARTION_TO_NODE = {"ecsstaff": ["alpha51", "alpha52", "alpha53"],
                    "ecsall": ["alpha54", "alpha55", "alpha56"],
@@ -35,11 +35,11 @@ PARTITION_MAX_RES = {"ecsstaff": {"CPU": 64 * 3, "RAM": 371 * 3, "GPU": 4 * 3},
 
 class RemoteConnectionManager:
     def __init__(self):
-        self.private_key = RSAKey(filename=PRIVATE_KEY_PATH)
+        self.private_key = RSAKey(filename=IRIDIS_SSH_KEY)
         self.connection = self._establish_connection()
 
     def _establish_connection(self):
-        return Connection(host=IRIDIS_ADDRESS, user=IRIDIS_USERNAME, connect_kwargs={'pkey': self.private_key})
+        return Connection(host=IRIDIS_ADDRESS, user=USERID, connect_kwargs={'pkey': self.private_key})
 
     def run_command(self, command):
         try:
@@ -234,7 +234,8 @@ def get_partition_CPU_cores_info(partition_name: str,
                                  conn_manager: RemoteConnectionManager,
                                  resource_state: str) -> int:
     cpu_info = conn_manager.run_command(f'sinfo --noheader -p {partition_name} --Format CPUsState')
-    allocated, idle, other, total = map(int, cpu_info.strip().split("/"))
+
+    allocated, idle, other, total = map(int, [c for c in cpu_info.strip().split("/") if c != ""])
 
     resource_state_map = {
         "ALLOCATED": allocated,
@@ -276,7 +277,7 @@ def aggregate_partition_info(conn_manager: RemoteConnectionManager, locked_usage
 
         info[p] = {'cpu_free': get_partition_CPU_cores_info(p, conn_manager, "idle"),
                    'cpu_total': get_partition_CPU_cores_info(p, conn_manager, "total"),
-                   'ram_free': round((PARTITION_MAX_RES[p]['RAM'] - get_partition_allocated_RAM(p, conn_manager)), 1),
+                   'ram_free': max(round((PARTITION_MAX_RES[p]['RAM'] - get_partition_allocated_RAM(p, conn_manager)), 1), 0),
                    'ram_total': PARTITION_MAX_RES[p]['RAM'],
 
                    'gpu_name': get_node_GPU_name(get_node_info(PARTION_TO_NODE[p][0], conn_manager)),
@@ -346,7 +347,8 @@ def filter_users_with_no_GPU_usage(info: dict) -> dict:
 
 def filter_users_with_partial_GPU_usage(info: dict) -> dict:
     """Keeps only the bad users"""
-    return {user: user_info for user, user_info in info.items() if user_info['gpu_allocated'] < user_info['gpu_locked']}
+    return {user: user_info for user, user_info in info.items() if user_info['gpu_allocated'] < user_info['gpu_locked']
+            and user_info['gpu_allocated'] != 0}
 
 
 if __name__ == "__main__":
